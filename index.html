@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Frame My Screen</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Responsive URL Frame Lab</p>
+          <h1>Frame My Screen</h1>
+        </div>
+        <form id="url-form" class="url-form">
+          <label class="sr-only" for="url-input">Preview URL</label>
+          <input
+            id="url-input"
+            name="url"
+            type="url"
+            placeholder="https://example.com or http://localhost:3000"
+            autocomplete="off"
+            spellcheck="false"
+            required
+          />
+          <button type="submit">Load URL</button>
+        </form>
+      </header>
+
+      <main class="workspace">
+        <section class="stage">
+          <div class="stage-grid"></div>
+          <div id="viewport-shell" class="viewport-shell">
+            <div class="viewport-meta">
+              <span id="size-readout">1440 × 900</span>
+              <span id="mode-readout">Desktop</span>
+            </div>
+            <div id="viewport-frame" class="viewport-frame" style="width: 1440px; height: 900px;">
+              <iframe
+                id="preview-frame"
+                title="Preview frame"
+                src="about:blank"
+                referrerpolicy="no-referrer"
+              ></iframe>
+              <button id="open-external" class="external-link" type="button">Open in new tab</button>
+              <div class="resize-rail resize-rail-top"></div>
+              <div class="resize-rail resize-rail-right"></div>
+              <div class="resize-label resize-label-top">Top-right resize</div>
+              <div class="resize-label resize-label-bottom">Bottom-right resize</div>
+              <div class="resize-handle resize-handle-ne" data-resize="ne" aria-hidden="true"></div>
+              <div class="resize-handle resize-handle-se" data-resize="se" aria-hidden="true"></div>
+            </div>
+          </div>
+        </section>
+
+        <aside class="floating-panels">
+          <section class="panel" data-panel style="top: 32px; left: 32px; width: 380px;">
+            <header class="panel-header" data-drag-handle>
+              <h2>Device Library</h2>
+              <span>Drag</span>
+            </header>
+            <div class="panel-body">
+              <div class="device-toolbar">
+                <input id="device-search" type="search" placeholder="Search devices or sizes" />
+                <select id="device-sort">
+                  <option value="name">Sort: Name</option>
+                  <option value="width-desc">Sort: Width</option>
+                  <option value="height-desc">Sort: Height</option>
+                </select>
+              </div>
+              <div class="filter-row">
+                <button class="filter-chip is-active" data-filter="all" type="button">All</button>
+                <button class="filter-chip" data-filter="phone" type="button">Phone</button>
+                <button class="filter-chip" data-filter="tablet" type="button">Tablet</button>
+                <button class="filter-chip" data-filter="desktop" type="button">Desktop</button>
+              </div>
+              <div id="device-list" class="device-list"></div>
+            </div>
+          </section>
+
+          <section class="panel" data-panel style="top: 32px; right: 32px; width: 340px;">
+            <header class="panel-header" data-drag-handle>
+              <h2>Viewport Controls</h2>
+              <span>Drag</span>
+            </header>
+            <div class="panel-body">
+              <form id="size-form" class="size-form">
+                <div class="size-grid">
+                  <label>
+                    Width
+                    <input id="width-input" type="number" min="120" max="4000" step="1" value="1440" />
+                  </label>
+                  <label>
+                    Height
+                    <input id="height-input" type="number" min="120" max="4000" step="1" value="900" />
+                  </label>
+                </div>
+                <button type="submit">Apply Size</button>
+              </form>
+              <div class="button-row button-row-two">
+                <button id="orientation-toggle" type="button">Toggle Orientation</button>
+                <button id="fit-stage" type="button">Center Frame</button>
+              </div>
+              <label class="toggle">
+                <input id="device-frame-toggle" type="checkbox" checked />
+                <span>Show device frame chrome</span>
+              </label>
+              <p class="hint">
+                Some sites block iframe embedding with `X-Frame-Options` or CSP. Use “Open in new tab” for those cases.
+              </p>
+            </div>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <template id="toast-template">
+      <div class="toast"></div>
+    </template>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
