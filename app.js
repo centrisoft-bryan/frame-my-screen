@@ -49,6 +49,7 @@ const DEFAULT_STATE = {
   deviceSort: "name",
   deviceQuery: "",
   selectedDeviceId: "macbook-air-13",
+  autoSyncPopup: true,
 };
 
 const els = {
@@ -62,10 +63,14 @@ const els = {
   viewportShell: document.querySelector("#viewport-shell"),
   sizeReadout: document.querySelector("#size-readout"),
   modeReadout: document.querySelector("#mode-readout"),
+  previewModeReadout: document.querySelector("#preview-mode-readout"),
   orientationToggle: document.querySelector("#orientation-toggle"),
   fitStage: document.querySelector("#fit-stage"),
   deviceFrameToggle: document.querySelector("#device-frame-toggle"),
+  autoSyncPopupToggle: document.querySelector("#auto-sync-popup-toggle"),
   openExternal: document.querySelector("#open-external"),
+  openPopup: document.querySelector("#open-popup"),
+  syncPopup: document.querySelector("#sync-popup"),
   toastTemplate: document.querySelector("#toast-template"),
   resizeHandles: [...document.querySelectorAll(".resize-handle")],
   panels: [...document.querySelectorAll("[data-panel]")],
@@ -78,6 +83,7 @@ const els = {
 let state = loadState();
 let resizeSession = null;
 let loadedUrl = "";
+let popupWindow = null;
 
 function loadState() {
   try {
@@ -186,6 +192,65 @@ function renderDeviceList() {
   els.deviceList.appendChild(fragment);
 }
 
+function isPopupOpen() {
+  return Boolean(popupWindow && !popupWindow.closed);
+}
+
+function getPopupFeatures() {
+  const chromePaddingWidth = 24;
+  const chromePaddingHeight = 96;
+  const width = clamp(state.width + chromePaddingWidth, 240, 4200);
+  const height = clamp(state.height + chromePaddingHeight, 240, 4200);
+  return `popup=yes,width=${width},height=${height},left=80,top=80,resizable=yes,scrollbars=yes`;
+}
+
+function syncPopupWindow({ focus = false } = {}) {
+  if (!isPopupOpen()) {
+    showToast("Open the popup preview first.");
+    return;
+  }
+
+  try {
+    popupWindow.resizeTo(state.width + 24, state.height + 96);
+    if (focus) {
+      popupWindow.focus();
+    }
+    els.previewModeReadout.textContent = "Popup Mode Active";
+  } catch {
+    showToast("Browser blocked popup resize control.");
+  }
+}
+
+function openPopupPreview() {
+  const features = getPopupFeatures();
+
+  if (isPopupOpen()) {
+    try {
+      popupWindow.location.href = state.url;
+      syncPopupWindow({ focus: true });
+      return;
+    } catch {
+      popupWindow = null;
+    }
+  }
+
+  popupWindow = window.open(state.url, "frame-my-screen-popup", features);
+
+  if (!popupWindow) {
+    showToast("Popup blocked. Allow popups for this site.");
+    return;
+  }
+
+  els.previewModeReadout.textContent = "Popup Mode Active";
+  window.setTimeout(() => syncPopupWindow({ focus: true }), 120);
+}
+
+function maybeSyncPopup() {
+  if (state.autoSyncPopup && isPopupOpen()) {
+    syncPopupWindow();
+  }
+}
+
 function updateViewport() {
   const width = clamp(Number(state.width) || DEFAULT_STATE.width, 120, 4000);
   const height = clamp(Number(state.height) || DEFAULT_STATE.height, 120, 4000);
@@ -206,7 +271,9 @@ function updateViewport() {
   els.heightInput.value = String(height);
   els.sizeReadout.textContent = `${width} × ${height}`;
   els.modeReadout.textContent = state.mode;
+  els.previewModeReadout.textContent = isPopupOpen() ? "Popup Mode Active" : "Embed Mode";
   els.deviceFrameToggle.checked = state.framed;
+  els.autoSyncPopupToggle.checked = state.autoSyncPopup;
   els.viewportFrame.classList.toggle("is-raw", !state.framed);
   els.deviceSearch.value = state.deviceQuery;
   els.deviceSort.value = state.deviceSort;
@@ -217,6 +284,7 @@ function updateViewport() {
 
   renderDeviceList();
   persistState();
+  maybeSyncPopup();
 }
 
 function applyState(patch) {
@@ -327,6 +395,14 @@ function initPanelDragging() {
 els.urlForm.addEventListener("submit", (event) => {
   event.preventDefault();
   applyState({ url: normalizeUrl(els.urlInput.value.trim()) });
+
+  if (isPopupOpen()) {
+    try {
+      popupWindow.location.href = state.url;
+    } catch {
+      popupWindow = null;
+    }
+  }
 });
 
 els.sizeForm.addEventListener("submit", (event) => {
@@ -354,6 +430,10 @@ els.deviceFrameToggle.addEventListener("change", (event) => {
   applyState({ framed: event.target.checked });
 });
 
+els.autoSyncPopupToggle.addEventListener("change", (event) => {
+  applyState({ autoSyncPopup: event.target.checked });
+});
+
 els.deviceSearch.addEventListener("input", (event) => {
   applyState({ deviceQuery: event.target.value });
 });
@@ -372,6 +452,14 @@ els.openExternal.addEventListener("click", () => {
   window.open(state.url, "_blank", "noopener,noreferrer");
 });
 
+els.openPopup.addEventListener("click", () => {
+  openPopupPreview();
+});
+
+els.syncPopup.addEventListener("click", () => {
+  syncPopupWindow({ focus: true });
+});
+
 els.previewFrame.addEventListener("load", () => {
   try {
     showToast(`Loaded ${new URL(state.url).host}`);
@@ -386,6 +474,12 @@ els.previewFrame.addEventListener("error", () => {
 
 els.resizeHandles.forEach((handle) => {
   handle.addEventListener("pointerdown", onResizePointerDown);
+});
+
+window.addEventListener("beforeunload", () => {
+  if (isPopupOpen()) {
+    popupWindow.close();
+  }
 });
 
 initPanelDragging();

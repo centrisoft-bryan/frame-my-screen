@@ -1,0 +1,13 @@
+{
+  "name": "frame-my-screen",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Responsive URL preview tool with static web mode and Electron shell.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^37.2.0"
+  }
+}
