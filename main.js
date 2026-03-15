@@ -1,4 +1,5 @@
-const { app, BrowserWindow, shell } = require("electron");
+const { app, BrowserWindow, ipcMain, shell } = require("electron");
+const { spawn } = require("child_process");
 const path = require("path");
 
 function createMainWindow() {
@@ -39,6 +40,17 @@ function createMainWindow() {
 }
 
 app.whenReady().then(() => {
+  ipcMain.handle("frame:open-device-emulation", async (_, payload) => {
+    const scriptPath = path.join(__dirname, "scripts", "playwright-emulate.mjs");
+    const child = spawn(process.execPath, [scriptPath, JSON.stringify(payload)], {
+      detached: true,
+      stdio: "ignore",
+      cwd: __dirname,
+    });
+    child.unref();
+    return true;
+  });
+
   createMainWindow();
 
   app.on("activate", () => {

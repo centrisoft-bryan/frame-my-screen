@@ -29,112 +29,129 @@
       </header>
 
       <main class="workspace">
-        <section class="stage">
+        <section id="stage" class="stage">
           <div class="stage-grid"></div>
-          <div id="viewport-shell" class="viewport-shell">
-            <div class="viewport-meta">
-              <span id="size-readout">1440 × 900</span>
-              <span id="mode-readout">Desktop</span>
-              <span id="preview-mode-readout">Embed Mode</span>
+          <div class="canvas-toolbar">
+            <div class="canvas-zoom-group">
+              <button id="zoom-out" type="button">Zoom Out</button>
+              <button id="zoom-reset" type="button">100%</button>
+              <button id="zoom-in" type="button">Zoom In</button>
             </div>
-            <div id="viewport-frame" class="viewport-frame" style="width: 1440px; height: 900px;">
-              <iframe
-                id="preview-frame"
-                title="Preview frame"
-                src="about:blank"
-                referrerpolicy="no-referrer"
-              ></iframe>
-              <button id="open-external" class="external-link" type="button">Open in new tab</button>
-              <div class="resize-rail resize-rail-top"></div>
-              <div class="resize-rail resize-rail-right"></div>
-              <div class="resize-label resize-label-top">Top-right resize</div>
-              <div class="resize-label resize-label-bottom">Bottom-right resize</div>
-              <div class="resize-handle resize-handle-ne" data-resize="ne" aria-hidden="true"></div>
-              <div class="resize-handle resize-handle-se" data-resize="se" aria-hidden="true"></div>
+            <p class="canvas-hint">Drag panels anywhere on the canvas and zoom out to inspect the layout in context.</p>
+          </div>
+          <div id="canvas-scaler" class="canvas-scaler">
+            <div id="canvas-scene" class="canvas-scene">
+              <div id="viewport-shell" class="viewport-shell">
+                <div class="viewport-meta">
+                  <span id="size-readout">1440 × 900</span>
+                  <span id="mode-readout">Desktop</span>
+                  <span id="preview-mode-readout">Embed Mode</span>
+                  <span id="zoom-readout">100%</span>
+                </div>
+                <div id="viewport-frame" class="viewport-frame" style="width: 1440px; height: 900px;">
+                  <iframe
+                    id="preview-frame"
+                    title="Preview frame"
+                    src="about:blank"
+                    referrerpolicy="no-referrer"
+                  ></iframe>
+                  <button id="open-external" class="external-link" type="button">Open in new tab</button>
+                  <div class="resize-rail resize-rail-top"></div>
+                  <div class="resize-rail resize-rail-right"></div>
+                  <div class="resize-label resize-label-top">Top-right resize</div>
+                  <div class="resize-label resize-label-bottom">Bottom-right resize</div>
+                  <div class="resize-handle resize-handle-ne" data-resize="ne" aria-hidden="true"></div>
+                  <div class="resize-handle resize-handle-se" data-resize="se" aria-hidden="true"></div>
+                </div>
+              </div>
+
+              <aside class="floating-panels">
+                <section class="panel" data-panel style="top: 160px; left: 80px; width: 380px;">
+                  <header class="panel-header" data-drag-handle>
+                    <h2>Device Library</h2>
+                    <span>Drag</span>
+                  </header>
+                  <div class="panel-body">
+                    <div class="device-toolbar">
+                      <input id="device-search" type="search" placeholder="Search devices or sizes" />
+                      <select id="device-sort">
+                        <option value="name">Sort: Name</option>
+                        <option value="width-desc">Sort: Width</option>
+                        <option value="height-desc">Sort: Height</option>
+                      </select>
+                    </div>
+                    <div class="filter-row">
+                      <button class="filter-chip is-active" data-filter="all" type="button">All</button>
+                      <button class="filter-chip" data-filter="phone" type="button">Phone</button>
+                      <button class="filter-chip" data-filter="tablet" type="button">Tablet</button>
+                      <button class="filter-chip" data-filter="desktop" type="button">Desktop</button>
+                    </div>
+                    <div id="device-list" class="device-list"></div>
+                  </div>
+                </section>
+
+                <section class="panel" data-panel style="top: 160px; left: 3320px; width: 340px;">
+                  <header class="panel-header" data-drag-handle>
+                    <h2>Viewport Controls</h2>
+                    <span>Drag</span>
+                  </header>
+                  <div class="panel-body">
+                    <form id="size-form" class="size-form">
+                      <div class="size-grid">
+                        <label>
+                          Width
+                          <input id="width-input" type="number" min="120" max="4000" step="1" value="1440" />
+                        </label>
+                        <label>
+                          Height
+                          <input id="height-input" type="number" min="120" max="4000" step="1" value="900" />
+                        </label>
+                      </div>
+                      <button type="submit">Apply Size</button>
+                    </form>
+                    <div class="button-row button-row-two">
+                      <button id="orientation-toggle" type="button">Toggle Orientation</button>
+                      <button id="fit-stage" type="button">Center Frame</button>
+                    </div>
+                    <div class="button-row button-row-two">
+                      <button id="open-popup" type="button">Open Popup Preview</button>
+                      <button id="sync-popup" type="button">Sync Popup Size</button>
+                    </div>
+                    <div class="button-row button-row-two">
+                      <button id="open-emulation" type="button">Open Device Emulation</button>
+                      <button id="center-panels" type="button">Reset Panels</button>
+                    </div>
+                    <label class="toggle">
+                      <input id="device-frame-toggle" type="checkbox" checked />
+                      <span>Show device frame chrome</span>
+                    </label>
+                    <label class="toggle">
+                      <input id="auto-sync-popup-toggle" type="checkbox" checked />
+                      <span>Auto-sync popup size</span>
+                    </label>
+                    <p class="hint">
+                      Popup mode opens blocked sites in a real top-level window. Device emulation mode adds UA, DPR, touch, and mobile viewport behavior when run locally.
+                    </p>
+                    <div class="compat-card">
+                      <h3>CentriPOS Embed Checklist</h3>
+                      <ul>
+                        <li>Set `Content-Security-Policy: frame-ancestors 'self' https://frame.getcentri.com`</li>
+                        <li>Remove `X-Frame-Options: DENY` or `SAMEORIGIN` if present</li>
+                        <li>Use auth cookies with `SameSite=None; Secure` for iframe login flows</li>
+                      </ul>
+                      <p class="hint">
+                        If CentriPOS stays in popup mode only, these header and cookie changes are not required for basic responsive testing.
+                      </p>
+                    </div>
+                    <p class="hint">
+                      The deployed Cloudflare site provides responsive framing and popup testing. Full device emulation runs locally through Playwright.
+                    </p>
+                  </div>
+                </section>
+              </aside>
             </div>
           </div>
         </section>
-
-        <aside class="floating-panels">
-          <section class="panel" data-panel style="top: 32px; left: 32px; width: 380px;">
-            <header class="panel-header" data-drag-handle>
-              <h2>Device Library</h2>
-              <span>Drag</span>
-            </header>
-            <div class="panel-body">
-              <div class="device-toolbar">
-                <input id="device-search" type="search" placeholder="Search devices or sizes" />
-                <select id="device-sort">
-                  <option value="name">Sort: Name</option>
-                  <option value="width-desc">Sort: Width</option>
-                  <option value="height-desc">Sort: Height</option>
-                </select>
-              </div>
-              <div class="filter-row">
-                <button class="filter-chip is-active" data-filter="all" type="button">All</button>
-                <button class="filter-chip" data-filter="phone" type="button">Phone</button>
-                <button class="filter-chip" data-filter="tablet" type="button">Tablet</button>
-                <button class="filter-chip" data-filter="desktop" type="button">Desktop</button>
-              </div>
-              <div id="device-list" class="device-list"></div>
-            </div>
-          </section>
-
-          <section class="panel" data-panel style="top: 32px; right: 32px; width: 340px;">
-            <header class="panel-header" data-drag-handle>
-              <h2>Viewport Controls</h2>
-              <span>Drag</span>
-            </header>
-            <div class="panel-body">
-              <form id="size-form" class="size-form">
-                <div class="size-grid">
-                  <label>
-                    Width
-                    <input id="width-input" type="number" min="120" max="4000" step="1" value="1440" />
-                  </label>
-                  <label>
-                    Height
-                    <input id="height-input" type="number" min="120" max="4000" step="1" value="900" />
-                  </label>
-                </div>
-                <button type="submit">Apply Size</button>
-              </form>
-              <div class="button-row button-row-two">
-                <button id="orientation-toggle" type="button">Toggle Orientation</button>
-                <button id="fit-stage" type="button">Center Frame</button>
-              </div>
-              <div class="button-row button-row-two">
-                <button id="open-popup" type="button">Open Popup Preview</button>
-                <button id="sync-popup" type="button">Sync Popup Size</button>
-              </div>
-              <label class="toggle">
-                <input id="device-frame-toggle" type="checkbox" checked />
-                <span>Show device frame chrome</span>
-              </label>
-              <label class="toggle">
-                <input id="auto-sync-popup-toggle" type="checkbox" checked />
-                <span>Auto-sync popup size</span>
-              </label>
-              <p class="hint">
-                Sites that block iframe embedding can still be tested in popup mode, where the URL opens as a real top-level browser window.
-              </p>
-              <div class="compat-card">
-                <h3>CentriPOS Embed Checklist</h3>
-                <ul>
-                  <li>Set `Content-Security-Policy: frame-ancestors 'self' https://frame.getcentri.com`</li>
-                  <li>Remove `X-Frame-Options: DENY` or `SAMEORIGIN` if present</li>
-                  <li>Use auth cookies with `SameSite=None; Secure` for iframe login flows</li>
-                </ul>
-                <p class="hint">
-                  If CentriPOS stays in popup mode only, these header and cookie changes are not required for basic responsive testing.
-                </p>
-              </div>
-              <p class="hint">
-                For full cross-site testing without iframe restrictions, use the Electron shell in this repo.
-              </p>
-            </div>
-          </section>
-        </aside>
       </main>
     </div>
 

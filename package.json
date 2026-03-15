@@ -5,9 +5,11 @@
   "description": "Responsive URL preview tool with static web mode and Electron shell.",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "emulate": "node scripts/playwright-emulate.mjs"
   },
   "devDependencies": {
-    "electron": "^37.2.0"
+    "electron": "^37.2.0",
+    "playwright": "^1.55.0"
   }
 }
