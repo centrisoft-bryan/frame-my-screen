@@ -6,10 +6,12 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "emulate": "node scripts/playwright-emulate.mjs"
+    "emulate": "node scripts/playwright-emulate.mjs",
+    "serve": "node server.js"
   },
   "devDependencies": {
     "electron": "^37.2.0",
+    "express": "^5.1.0",
     "playwright": "^1.55.0",
     "wrangler": "^4.73.0"
   }

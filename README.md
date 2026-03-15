@@ -13,12 +13,24 @@ Responsive preview lab with a zoomable canvas, draggable tool panels, popup test
 - Toggle orientation
 - Open blocked sites in popup preview mode and keep that popup sized to the selected device, with a reopen fallback when browsers block direct resize APIs
 - Launch Playwright-powered device emulation locally with mobile UA, DPR, and touch behavior
+- Trigger Playwright emulation from the browser UI when the app is run behind the included Node backend
 - Drag floating control dialogs around the canvas
 - Persist the last URL and screen size in `localStorage`
 
 ## Local Run
 
 Open [index.html](/Users/bryanclark/Documents/Codex%20Projects/Apps/Frame%20My%20Screen/index.html) directly in a browser, or serve this folder with any static file server.
+
+## Browser Plus Backend Mode
+
+If you want device emulation to be triggered from the browser UI instead of Electron, run the included backend:
+
+1. Run `npm install`
+2. Run `npm run serve`
+3. Open `http://localhost:8788`
+4. Use `Open Device Emulation`
+
+This mode keeps the app browser-based, but the browser page calls the local Node service at [server.js](/Users/bryanclark/Documents/Codex%20Projects/Apps/Frame%20My%20Screen/server.js), which launches Playwright on the host machine.
 
 ## Electron And Playwright Mode
 
@@ -79,3 +91,5 @@ Some sites cannot be embedded in an iframe because of `X-Frame-Options` or CSP h
 `frame.getcentri.com` can host the responsive canvas, iframe preview, and popup workflow.
 
 True device emulation is local-only in this project because Cloudflare Pages is static hosting and cannot run Playwright browsers directly. The deployed site is still useful for layout inspection, but mobile/tablet behavior accuracy comes from the Electron + Playwright path.
+
+If you want browser-triggered device emulation on a hosted domain, this same backend pattern has to be deployed on a real server platform rather than Cloudflare Pages static hosting.

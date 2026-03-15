@@ -106,6 +106,7 @@ let state = loadState();
 let resizeSession = null;
 let loadedUrl = "";
 let popupWindow = null;
+let backendAvailability = null;
 
 function loadState() {
   try {
@@ -332,6 +333,32 @@ async function openDeviceEmulation() {
     type: selectedDevice?.type || "desktop",
   };
 
+  if (backendAvailability === null) {
+    backendAvailability = await hasEmulationBackend();
+  }
+
+  if (backendAvailability) {
+    try {
+      const response = await fetch("/api/emulate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error("Backend emulation request failed.");
+      }
+
+      showToast(`Requested browser emulation for ${payload.deviceLabel}.`);
+      return;
+    } catch (error) {
+      showToast(error?.message || "Unable to reach the emulation backend.");
+      return;
+    }
+  }
+
   if (window.frameDesktop?.openDeviceEmulation) {
     try {
       await window.frameDesktop.openDeviceEmulation(payload);
@@ -344,6 +371,25 @@ async function openDeviceEmulation() {
   }
 
   showToast("Device emulation runs from the local Electron app. Static deploys support responsive and popup modes only.");
+}
+
+async function hasEmulationBackend() {
+  try {
+    if (window.location.protocol === "file:") {
+      return false;
+    }
+
+    const response = await fetch("/api/health", {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    });
+
+    return response.ok;
+  } catch {
+    return false;
+  }
 }
 
 function updateViewport() {
