@@ -10,7 +10,7 @@ Lightweight responsive preview tool for loading a URL into a resizable iframe, w
 - Filter devices by `Phone`, `Tablet`, and `Desktop`
 - Search and sort a larger device catalog
 - Toggle orientation
-- Open blocked sites in popup preview mode and keep that popup sized to the selected device
+- Open blocked sites in popup preview mode and keep that popup sized to the selected device, with a reopen fallback when browsers block direct resize APIs
 - Drag floating control dialogs around the canvas
 - Persist the last URL and screen size in `localStorage`
 
@@ -69,4 +69,4 @@ If those changes are not made, use popup mode or Electron mode instead.
 
 ## Notes
 
-Some sites cannot be embedded in an iframe because of `X-Frame-Options` or CSP headers. Use the in-app popup mode first, and use Electron mode when you want a more app-like browser test harness.
+Some sites cannot be embedded in an iframe because of `X-Frame-Options` or CSP headers. Use the in-app popup mode first, and use Electron mode when you want a more app-like browser test harness. Some browsers also block `window.resizeTo()` for popup windows after navigation; when that happens, the app now falls back to reopening the named popup with the requested dimensions.

@@ -204,6 +204,22 @@ function getPopupFeatures() {
   return `popup=yes,width=${width},height=${height},left=80,top=80,resizable=yes,scrollbars=yes`;
 }
 
+function reopenPopupWindow({ focus = false } = {}) {
+  const reopened = window.open(state.url, "frame-my-screen-popup", getPopupFeatures());
+
+  if (!reopened) {
+    showToast("Popup blocked. Allow popups for this site.");
+    return false;
+  }
+
+  popupWindow = reopened;
+  if (focus) {
+    popupWindow.focus();
+  }
+  els.previewModeReadout.textContent = "Popup Mode Active";
+  return true;
+}
+
 function syncPopupWindow({ focus = false } = {}) {
   if (!isPopupOpen()) {
     showToast("Open the popup preview first.");
@@ -211,19 +227,41 @@ function syncPopupWindow({ focus = false } = {}) {
   }
 
   try {
+    const beforeWidth = popupWindow.outerWidth;
+    const beforeHeight = popupWindow.outerHeight;
     popupWindow.resizeTo(state.width + 24, state.height + 96);
+
+    window.setTimeout(() => {
+      if (!isPopupOpen()) {
+        return;
+      }
+
+      const widthUnchanged = Math.abs((popupWindow.outerWidth || 0) - beforeWidth) < 8;
+      const heightUnchanged = Math.abs((popupWindow.outerHeight || 0) - beforeHeight) < 8;
+
+      if (widthUnchanged && heightUnchanged) {
+        const reopened = reopenPopupWindow({ focus });
+        if (reopened) {
+          showToast("Popup reopened at the new size.");
+        }
+      }
+    }, 160);
+
     if (focus) {
       popupWindow.focus();
     }
     els.previewModeReadout.textContent = "Popup Mode Active";
   } catch {
-    showToast("Browser blocked popup resize control.");
+    const reopened = reopenPopupWindow({ focus });
+    if (reopened) {
+      showToast("Browser blocked direct resize. Reopened popup at the new size.");
+    } else {
+      showToast("Browser blocked popup resize control.");
+    }
   }
 }
 
 function openPopupPreview() {
-  const features = getPopupFeatures();
-
   if (isPopupOpen()) {
     try {
       popupWindow.location.href = state.url;
@@ -234,15 +272,9 @@ function openPopupPreview() {
     }
   }
 
-  popupWindow = window.open(state.url, "frame-my-screen-popup", features);
-
-  if (!popupWindow) {
-    showToast("Popup blocked. Allow popups for this site.");
-    return;
+  if (reopenPopupWindow({ focus: true })) {
+    window.setTimeout(() => syncPopupWindow({ focus: true }), 120);
   }
-
-  els.previewModeReadout.textContent = "Popup Mode Active";
-  window.setTimeout(() => syncPopupWindow({ focus: true }), 120);
 }
 
 function maybeSyncPopup() {
